@@ -2,7 +2,6 @@
 /**
  * Helper class.
  *
- * @since      2.0.0
  * @package    GTM_Server_Side
  * @subpackage GTM_Server_Side/includes
  */
@@ -71,12 +70,11 @@ class GTM_Server_Side_Helpers {
 		// Trimmed here rather than only on save: an option written outside the
 		// settings screen never passes through a sanitize callback, and a
 		// stray space ends up inside the loader's "?id=" query.
-		// 2.3.0: and in upper case. A GTM container id is upper case by
-		// definition, and the loader's own rule in the workers (decodeContainerId,
-		// unchanged since 1.1 and v5.5) reads upper-case letters and digits after
-		// "GTM-" as far as they go: an id typed in another case was read short or
-		// not at all, and the request the page printed was refused or served
-		// another container.
+		// It is upper-cased here as well. A GTM container id is upper case by
+		// definition, and the loader's own rule in the workers (decodeContainerId)
+		// reads upper-case letters and digits after "GTM-" as far as they go: an
+		// id typed in another case would be read short or not at all, and the
+		// request the page prints would be refused or served another container.
 		return strtoupper( trim( (string) self::get_option( GTM_SERVER_SIDE_FIELD_WEB_CONTAINER_ID ) ) );
 	}
 
@@ -153,26 +151,26 @@ class GTM_Server_Side_Helpers {
 	/**
 	 * Return filtering GTM web container ID (Web Google Tag Manager ID).
 	 *
-	 * 2.3.0: $shield is true for a page printed for the loader (the hourly
-	 * shield check said yes, GTM_Server_Side_Tracking_Code decides once per
-	 * page). Only such a page asks the edge for the shield: its loader query
-	 * also carries the GA4 id, the event-name suffix and the protocol mark
-	 * p=1, and it is cached apart. Every other page asks with the id alone,
-	 * from the cache entry and fingerprint 2.2.1 used, so its loader address
-	 * does not change with the update. An inline page therefore never fetches
-	 * a second copy of the protection, and a loader a browser fetched for one
-	 * kind of page never stands in for the other. The subdomain way (no path)
-	 * has no shield.
+	 * $shield is true for a page printed for the loader (the hourly shield
+	 * check says yes, GTM_Server_Side_Tracking_Code decides once per page).
+	 * Only such a page asks the edge for the shield: its loader query also
+	 * carries the GA4 id, the event-name suffix and the protocol mark p=1, and
+	 * it is cached apart. Every other page asks with the id alone, from a cache
+	 * entry and fingerprint that no update changes, so its loader address stays
+	 * the same across updates. An inline page therefore never fetches a second
+	 * copy of the protection, and a loader a browser fetched for one kind of
+	 * page never stands in for the other. The subdomain way (no path) has no
+	 * shield.
 	 *
 	 * The entry of a page printed for the loader is made for this plugin
-	 * version too (the fifth review): a release writes its own query, so a
-	 * composed loader a browser kept from the release before, whose pieces
-	 * may have been other ones, never stands in for this one's. The query of
-	 * an inline page stays as it is: its loader is Google's script alone.
+	 * version too: each version writes its own query, so a composed loader a
+	 * browser kept from another version, whose pieces may differ, never stands
+	 * in for this one's. The query of an inline page stays as it is: its loader
+	 * is Google's script alone.
 	 *
-	 * 2.3.2: the value of a page printed for the loader is written for the
-	 * loader's own file name and the key of its query (veil()); the value of
-	 * an inline page stays as 2.2.1 wrote it.
+	 * The value of a page printed for the loader is written for the loader's
+	 * own file name and the key of its query (veil()); the value of an inline
+	 * page is not veiled.
 	 *
 	 * @param  bool $shield Whether the page is printed for the loader.
 	 * @return string
@@ -206,9 +204,9 @@ class GTM_Server_Side_Helpers {
 					'id=' . $container_id,
 				);
 
-				// 2.3.0: the values the edge composes the shield from, on a page
-				// printed for the loader only (above), so the edge can compose it
-				// from the loader request alone.
+				// The values the edge composes the shield from, on a page printed
+				// for the loader only (above), so the edge can compose it from
+				// the loader request alone.
 				if ( $shield ) {
 					$container_params[] = 'ga=' . self::get_ga4_fallback_id();
 					$container_params[] = 'suf=' . ( self::is_enable_data_layer_custom_event_name() ? GTM_SERVER_SIDE_DATA_LAYER_CUSTOM_EVENT_NAME : '' );
@@ -236,7 +234,7 @@ class GTM_Server_Side_Helpers {
 	}
 
 	/**
-	 * The value of the loader's query on a page printed for the loader (2.3.2).
+	 * The value of the loader's query on a page printed for the loader.
 	 *
 	 * @param  string $text The value.
 	 * @param  string $key  The loader's file name and the key of its query.
@@ -278,7 +276,7 @@ class GTM_Server_Side_Helpers {
 	 * Strip the things that silently break a container URL.
 	 *
 	 * Surrounding whitespace and trailing slashes, nothing else. The value is
-	 * a URL the site owner typed and the worker routes on, so this must not
+	 * a URL the administrator typed and the worker routes on, so this must not
 	 * rewrite it beyond the two mistakes that are always mistakes.
 	 *
 	 * @param  mixed $url Raw url.
@@ -396,13 +394,13 @@ class GTM_Server_Side_Helpers {
 	/**
 	 * Return the sanitized GA4 Measurement ID the recovery fallback sends to.
 	 *
-	 * This value is also the switch (2.1.0): GA4 measurement recovery is on
-	 * exactly when it is non-empty. When on, a small watchdog script ships with
-	 * the custom loader: if the Google tag stays silent after the web container
-	 * has loaded - which happens in browser privacy modes such as iOS Safari
+	 * This value is also the switch: GA4 measurement recovery is on exactly
+	 * when it is non-empty. When on, a small watchdog script ships with the
+	 * custom loader: if the Google tag stays silent after the web container has
+	 * loaded - which happens in browser privacy modes such as iOS Safari
 	 * Private Browsing - the watchdog sends minimal first-party hits (the page
-	 * view plus the plugin's data-layer events, ecommerce included) through
-	 * the server container so the visit still reaches GA4.
+	 * view plus the plugin's data-layer events, ecommerce included) through the
+	 * server container so the visit still reaches GA4.
 	 *
 	 * @return string Empty string when unset or not "G-..." shaped (feature off).
 	 */
@@ -442,8 +440,9 @@ class GTM_Server_Side_Helpers {
 	 * Build a "?v=<hash>" cache-busting query for a plugin asset.
 	 *
 	 * Content-hashed rather than version-stamped so a hand-patched asset also
-	 * busts, and memoized per request. Returns '' when the file is unreadable -
-	 * the caller then falls back to the plugin version, which still works.
+	 * busts, and memoized for the rest of the request. Returns '' when the file
+	 * is unreadable - the caller then falls back to the plugin version, which
+	 * still works.
 	 *
 	 * A persistent memo (transient, one week) avoids re-hashing the enqueued
 	 * assets on every page view. Cache-busting correctness beats the
@@ -452,8 +451,8 @@ class GTM_Server_Side_Helpers {
 	 * a replaced, upgraded or hand-patched file changes its mtime, misses the
 	 * memo, and is re-hashed on the spot. A missing transient, a mismatched or
 	 * malformed value, or an unavailable transient API all fall through to
-	 * hashing the file directly - byte-identical to the pre-memo behaviour.
-	 * A failed hash is never stored, so an error can not stick.
+	 * hashing the file directly - byte-identical to a run without the memo. A
+	 * failed hash is never stored, so an error can not stick.
 	 *
 	 * @param string $rel Path relative to the plugin root, e.g. "assets/js/javascript.js".
 	 * @return string
@@ -785,15 +784,15 @@ class GTM_Server_Side_Helpers {
 	}
 
 	/**
-	 * The key of the loader's query (2.3.0): one to eight letters or digits as
-	 * before, but never a name the workers pass on to Google with the loader
-	 * request (l, gtm_debug, gtm_auth, gtm_preview, cx, gtm, sign, google_only:
-	 * LOADER_PASS in the workers), nor one the loader or the disguise reads
-	 * (id, ei), nor one of the query's own ends (cgm, asq, tl, type, sort) or
-	 * marks (_synr). Under such a key the blob would travel to Google as that
-	 * parameter (as "l", the data layer's name, it would break every tag of
-	 * the container) or be read as something else. A reserved draw, in any
-	 * letter case, is drawn again; a thousand draws at most.
+	 * The key of the loader's query: one to eight letters or digits, but never
+	 * a name the workers pass on to Google with the loader request (l,
+	 * gtm_debug, gtm_auth, gtm_preview, cx, gtm, sign, google_only: LOADER_PASS
+	 * in the workers), nor one the loader or the disguise reads (id, ei), nor
+	 * one of the query's own ends (cgm, asq, tl, type, sort) or marks (_synr).
+	 * Under such a key the blob would travel to Google as that parameter (as
+	 * "l", the data layer's name, it would break every tag of the container) or
+	 * be read as something else. A reserved draw, in any letter case, is drawn
+	 * again; a thousand draws at most.
 	 *
 	 * @param  int $attempts Draws left.
 	 * @return string
@@ -812,34 +811,30 @@ class GTM_Server_Side_Helpers {
 	 * Return a generated field: the random parts of the loader's address (the
 	 * first letters of its file name, the key and the end of its query).
 	 *
-	 * The value is stored together with a fingerprint of the settings it was
-	 * generated from, and is only reused while that fingerprint still
-	 * matches. Invalidation used to depend entirely on update_option_ hooks
-	 * that are registered inside the admin class, so anything that changed a
-	 * setting without going through wp-admin - WP-CLI, a migration, an
-	 * importer, delete_option followed by add_option - left the site serving
-	 * the previous disguised file name for up to a year, with no way to tell
-	 * from the settings screen.
+	 * The value is stored together with a fingerprint of the settings it is
+	 * generated from, and is only reused while that fingerprint still matches.
+	 * Hooks registered inside the admin class alone would miss anything that
+	 * changes a setting without going through wp-admin (WP-CLI, a migration, an
+	 * importer, delete_option followed by add_option), and the site would serve
+	 * a stale disguised file name for up to a year, with no way to tell from
+	 * the settings screen.
 	 *
-	 * 2.3.0 (B-01 of the fifth review): the value is kept in an option of its
-	 * own, autoloaded, and read from there. Up to 2.2.1 it lived in a
-	 * transient alone, and on a site with a persistent object cache a
-	 * transient is gone with every flush or eviction of that cache: the next
-	 * page then drew a new address. Harmless while nothing was bound to the
-	 * address; since 2.3.0 the shield check's "yes" is bound to it
-	 * (GTM_Server_Side_Shield_Check), and the check's own purge may flush
-	 * that very cache. In an option the address of a set
-	 * of settings stays what it is, whatever happens to a cache, and a page
-	 * reads it without a query.
+	 * The value is kept in an option of its own, autoloaded, and read from
+	 * there. On a site with a persistent object cache a transient is gone with
+	 * every flush or eviction of that cache, and the next page would draw a new
+	 * address. The shield check's "yes" is bound to the address
+	 * (GTM_Server_Side_Shield_Check), and the check's own purge may flush that
+	 * very cache. In an option the address of a set of settings stays what it
+	 * is, whatever happens to a cache, and a page reads it without a query.
 	 *
-	 * The transient is still read when the option has no value for these
-	 * settings, and what it holds is taken over: the address 2.2.1 printed
-	 * does not change with the update. A value made here is written to both,
-	 * so 2.2.1, put back after a downgrade, finds it as well. The option is
-	 * never deleted (the rollback rule of the upgrade class).
+	 * The transient is read when the option has no value for these settings,
+	 * and what it holds is taken over: an address a transient holds does not
+	 * change with an update. A value made here is written to both, so an
+	 * earlier version, put back after a downgrade, finds it as well. The option
+	 * is never deleted (the rollback rule of the upgrade class).
 	 *
-	 * A value written by an older version is a bare string and does not match
-	 * the stored shape, so it is regenerated once and then behaves.
+	 * A value stored as a bare string does not match the stored shape, so it is
+	 * regenerated once and then behaves.
 	 *
 	 * @param  string   $key         Cache key.
 	 * @param  callable $callback    Callback.
@@ -871,8 +866,9 @@ class GTM_Server_Side_Helpers {
 	/**
 	 * Is this a stored generated value, made for these settings? An array
 	 * with the fingerprint asked for and a value that is a text and not
-	 * empty; anything else (nothing stored, a bare string of 2.0.x, another
-	 * fingerprint, a value emptied by delete_cache_field()) is not.
+	 * empty; anything else (nothing stored, a bare string of an earlier
+	 * version, another fingerprint, a value emptied by delete_cache_field()) is
+	 * not.
 	 *
 	 * @param  mixed  $stored      What the option or the transient holds.
 	 * @param  string $fingerprint Inputs the generated value depends on.

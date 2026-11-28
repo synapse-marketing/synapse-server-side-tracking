@@ -4,7 +4,6 @@
  *
  * @package    GTM_Server_Side
  * @subpackage GTM_Server_Side/includes
- * @since      2.0.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -26,12 +25,12 @@ class GTM_Server_Side_Frontend_Ajax {
 			add_action( 'wp_ajax_nopriv_gtm_server_side_state_cart_data', array( $this, 'state_cart_data' ) );
 		}
 
-		// 2.3.0: the browser's confirmation of a purchase push (2.2.0) arrives
-		// through admin-ajax, where is_admin() is true and the front-end classes
-		// are never started. Registered in the purchase class, it was never
-		// reached: WordPress answered every confirmation 400 and no order was
-		// ever confirmed. It is registered here, on the always-hook, under the
-		// condition the purchase class itself starts on.
+		// The browser's confirmation of a purchase push arrives through
+		// admin-ajax, where is_admin() is true and the front-end classes are
+		// never started. A handler registered in the purchase class is never
+		// reached (WordPress answers every confirmation with 400), so it is
+		// registered here, on the always-hook, under the condition the purchase
+		// class itself starts on.
 		if ( GTM_Server_Side_WC_Helpers::instance()->is_enable_ecommerce() ) {
 			add_action( 'wp_ajax_' . GTM_Server_Side_Event_Purchase::ACK_ACTION, array( $this, 'purchase_ack' ) );
 			add_action( 'wp_ajax_nopriv_' . GTM_Server_Side_Event_Purchase::ACK_ACTION, array( $this, 'purchase_ack' ) );

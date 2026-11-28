@@ -2,7 +2,6 @@
 /**
  * WooCommerce helpers class.
  *
- * @since      2.0.0
  * @package    GTM_Server_Side
  * @subpackage GTM_Server_Side/includes
  */
@@ -212,10 +211,10 @@ class GTM_Server_Side_WC_Helpers {
 			return array();
 		}
 
-		// Use the session-backed customer that was just validated, not a fresh
-		// one built from its id. For a guest that id is 0, so rebuilding threw
-		// away everything the shopper had typed at checkout and every field
-		// came back empty - the setting looked enabled and did nothing.
+		// Use the session-backed customer just validated, not a fresh one built
+		// from its id. For a guest that id is 0, so a rebuilt customer would
+		// lose everything the shopper typed at checkout and every field would
+		// come back empty.
 		$customer = WC()->customer;
 
 		$fields = array(

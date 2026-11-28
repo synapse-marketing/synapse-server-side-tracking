@@ -1,9 +1,9 @@
 /* Synapse Server-Side Tracking: settings page.
-   Same design system as Synapse Cookie Banner 2.5.0 (and synapse-marketing.com):
-   Inter, ink/parchment surfaces, hairlines, 12px inputs and buttons, 18px card,
-   one red accent, focus = white field with a solid grey frame (never a glow).
-   Visual only: the markup, texts and behaviour of the page are untouched, every
-   rule is scoped to #gtm-server-side-admin-settings and specific enough to beat
+   Same design system as Synapse Cookie Banner and synapse-marketing.com: Inter,
+   ink/parchment surfaces, hairlines, 12px inputs and buttons, 18px card, one red
+   accent, focus = white field with a solid grey frame (never a glow). Visual
+   only: the markup, texts and behaviour of the page are untouched, every rule is
+   scoped to #gtm-server-side-admin-settings and specific enough to beat
    WordPress core forms.css / common.css / buttons.css. */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 

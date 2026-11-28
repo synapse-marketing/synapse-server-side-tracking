@@ -4,7 +4,6 @@
  *
  * @package    GTM_Server_Side
  * @subpackage GTM_Server_Side/includes
- * @since      2.0.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -55,10 +54,10 @@ class GTM_Server_Side_Event_Login {
 			return;
 		}
 
-		// 2.3.0: printed for a signed-in visitor only. The cookie can outlive its
-		// login (a login that went straight to the dashboard, a logout), and a
-		// page printed for anyone else may be kept by a page cache and served to
-		// every visitor. There the page stays as it is without the cookie.
+		// Printed for a signed-in visitor only. The cookie can outlive its login
+		// (a login that went straight to the dashboard, a logout), and a page
+		// printed for anyone else may be kept by a page cache and served to every
+		// visitor. There the page stays as it is without the cookie.
 		if ( ! is_user_logged_in() ) {
 			return;
 		}

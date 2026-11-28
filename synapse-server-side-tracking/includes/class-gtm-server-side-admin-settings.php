@@ -4,7 +4,6 @@
  *
  * @package    GTM_Server_Side
  * @subpackage GTM_Server_Side/includes
- * @since      2.0.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -30,8 +29,6 @@ class GTM_Server_Side_Admin_Settings {
 
 	/**
 	 * Add settings menu.
-	 *
-	 * @since 1.0.0
 	 */
 	public function admin_init() {
 
@@ -48,8 +45,6 @@ class GTM_Server_Side_Admin_Settings {
 
 	/**
 	 * Add settings menu.
-	 *
-	 * @since    1.0.0
 	 */
 	public function admin_menu() {
 		add_options_page(

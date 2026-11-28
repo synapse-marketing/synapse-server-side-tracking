@@ -2,7 +2,6 @@
 /**
  * State helpers class.
  *
- * @since      2.0.0
  * @package    GTM_Server_Side
  * @subpackage GTM_Server_Side/includes
  */

@@ -4,7 +4,6 @@
  *
  * @package    GTM_Server_Side
  * @subpackage GTM_Server_Side/includes
- * @since      2.0.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -45,9 +44,9 @@ class GTM_Server_Side_Frontend_Assets {
 		);
 
 		// Where the diagnostic pixel goes, and only where there is an edge
-		// worker to receive it (a container identifier is set). Since 2.1.0
-		// this is the only signal channel: nothing else on the page publishes
-		// one, so without it a cart-state failure would stay silent.
+		// worker to receive it (a container identifier is set). This is the
+		// only signal channel: nothing else on the page publishes one, so
+		// without it a cart-state failure would stay silent.
 		if ( GTM_Server_Side_Helpers::has_gtm_container_identifier() ) {
 			$prefix                 = wp_parse_url( GTM_Server_Side_Helpers::get_gtm_container_url(), PHP_URL_PATH );
 			$scripts['signal_path'] = is_string( $prefix ) ? rtrim( $prefix, '/' ) : '';

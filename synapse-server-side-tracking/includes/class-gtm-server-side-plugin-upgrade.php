@@ -4,7 +4,6 @@
  *
  * @package    GTM_Server_Side
  * @subpackage GTM_Server_Side/includes
- * @since      2.0.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -24,22 +23,22 @@ class GTM_Server_Side_Plugin_Upgrade {
 	const GA4_SWITCH_REMOVED_IN = '2.1.0-beta.1';
 
 	/**
-	 * Option of the GA4 recovery checkbox removed in 2.1.0. Read here, never
-	 * written or deleted, so reinstalling 2.0.x finds it as it was.
+	 * Option of the retired GA4 recovery checkbox. Read here, never written or
+	 * deleted, so an earlier version, installed again, finds it untouched.
 	 *
 	 * @var string
 	 */
 	const LEGACY_GA4_FALLBACK = 'synapse_ct_ga4_fallback';
 
 	/**
-	 * Where a GA4 Measurement ID is kept whose recovery checkbox was off.
+	 * Where a GA4 Measurement ID is kept whose recovery checkbox is off.
 	 *
 	 * @var string
 	 */
 	const GA4_FALLBACK_ID_DISABLED = 'synapse_ct_ga4_fallback_id_disabled';
 
 	/**
-	 * WP-Cron hook of the edge sender health check removed in 2.1.0.
+	 * WP-Cron hook of the retired edge sender health check.
 	 *
 	 * @var string
 	 */
@@ -53,11 +52,11 @@ class GTM_Server_Side_Plugin_Upgrade {
 	 * are deliberately NO migrations from any other plugin - Synapse always
 	 * starts from its own clean options.
 	 *
-	 * Rollback rule: a migration never deletes an option. 2.1.0 removed five
+	 * Rollback rule: a migration never deletes an option. The five retired
 	 * settings (synapse_ct_data_rescue, synapse_ct_edge_sender,
 	 * synapse_ct_enhanced_adblocker, synapse_ct_ga4_fallback and the stored
-	 * result synapse_ct_edge_health), and all of them stay in the database
-	 * untouched, so reinstalling 2.0.3 restores exactly what the site had.
+	 * result synapse_ct_edge_health) all stay in the database untouched, so
+	 * reinstalling an earlier version restores exactly what the site had.
 	 *
 	 * @return void
 	 */
@@ -72,14 +71,14 @@ class GTM_Server_Side_Plugin_Upgrade {
 			self::migrate_ga4_switch();
 		}
 
-		// The edge sender health check is gone, and a scheduled event whose
-		// callback no longer exists would still fire every day. Its stored
-		// result option is left alone (rollback rule above).
+		// The retired edge sender health check has no callback, and a scheduled
+		// event without one would still fire every day. Its stored result
+		// option is left alone (rollback rule above).
 		wp_clear_scheduled_hook( self::LEGACY_EDGE_HEALTH_HOOK );
 
-		// 2.3.0: a version change (an update, a downgrade and back) drops the
-		// shield check's record: the pages print inline until the next hourly
-		// run says "yes" again for this version's own address. Never deleted.
+		// A version change (an update, a downgrade and back) drops the shield
+		// check's record: the pages print inline until the next hourly run says
+		// "yes" again for this version's own address. Never deleted.
 		GTM_Server_Side_Shield_Check::forget();
 
 		update_option( GTM_SERVER_SIDE_FIELD_VERSION, get_gtm_server_side_version(), false );
@@ -104,13 +103,13 @@ class GTM_Server_Side_Plugin_Upgrade {
 	}
 
 	/**
-	 * 2.1.0: the GA4 recovery checkbox is gone and the Measurement ID alone
-	 * switches recovery on.
+	 * The Measurement ID alone switches GA4 recovery on; the recovery checkbox
+	 * is retired.
 	 *
-	 * A site that had an ID stored with the checkbox off would start
-	 * recovering the moment it updated. To keep its behaviour identical, the
-	 * ID is copied to GA4_FALLBACK_ID_DISABLED and the field is cleared. The
-	 * checkbox option itself is not touched.
+	 * A site with an ID stored and the checkbox off would start recovering the
+	 * moment it updates. To keep its behaviour identical, the ID is copied to
+	 * GA4_FALLBACK_ID_DISABLED and the field is cleared. The checkbox option
+	 * itself is not touched.
 	 *
 	 * @return void
 	 */

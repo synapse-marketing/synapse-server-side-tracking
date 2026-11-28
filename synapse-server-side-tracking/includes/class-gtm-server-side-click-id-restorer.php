@@ -25,7 +25,7 @@
  * request log can tell the two landings apart. Without it they are
  * indistinguishable in the wrong direction: the backup parameter survives only
  * while it is UNUSED, and a real restore deletes it, so its presence marks a
- * landing that was never stripped and its absence marks either a rescue or an
+ * landing the browser did not strip and its absence marks either a rescue or an
  * ordinary visit. The marker is the inverse - emitted only on the branch that
  * did the work.
  *
@@ -42,7 +42,6 @@
  *
  * @package    GTM_Server_Side
  * @subpackage GTM_Server_Side/includes
- * @since      1.0.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -54,13 +53,12 @@ class GTM_Server_Side_Click_Id_Restorer {
 	use GTM_Server_Side_Singleton;
 
 	/**
-	 * Query parameter stamped on the URL when a click ID was really restored.
+	 * Query parameter stamped on the URL when a click ID is really restored.
 	 *
 	 * Kept deliberately short, brandless and free of "=" (see the file header).
 	 * It sits next to "synapse_recovered" (GA4 measurement recovery) and
-	 * "_synr=1" (the transport rescue of 2.0.x, still found in older logs) as
-	 * a rescue marker, and is a distinct token from both so they stay
-	 * separable in the logs.
+	 * "_synr=1" (the mark of the retired transport rescue) as a rescue marker,
+	 * and is a distinct token from both so they stay separable in the logs.
 	 *
 	 * @var string
 	 */

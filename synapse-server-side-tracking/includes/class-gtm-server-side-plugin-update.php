@@ -4,7 +4,6 @@
  *
  * @package    GTM_Server_Side
  * @subpackage GTM_Server_Side/includes
- * @since      2.0.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -28,14 +27,13 @@ defined( 'ABSPATH' ) || exit;
  * not verify, or anything else unexpected simply means "no update
  * available", never an error on the site.
  *
- * 2.1.2: the signature is checked twice and can no longer be skipped. A
- * manifest is believed only when its release record verifies, so a hostile
- * update channel cannot even put an offer on the screen. The record behind
- * the offer is kept network-wide, apart from the manifest cache, and every
- * download of this plugin - whoever asks for it and whatever another filter
- * already answered - must match that record byte for byte before WordPress
- * installs it. Before 2.1.2 a manifest that was missing or named another
- * package at download time let the download through unchecked.
+ * The signature is checked twice and can never be skipped. A manifest is
+ * believed only when its release record verifies, so a hostile update channel
+ * cannot even put an offer on the screen. The record behind the offer is kept
+ * network-wide, apart from the manifest cache, and every download of this
+ * plugin - whoever asks for it and whatever another filter already answered -
+ * must match that record byte for byte before WordPress installs it, even when
+ * the manifest is missing or names another package at download time.
  */
 class GTM_Server_Side_Plugin_Update {
 	use GTM_Server_Side_Singleton;
@@ -66,15 +64,15 @@ class GTM_Server_Side_Plugin_Update {
 	 * and that release can retire k1. The private halves never leave the
 	 * release machine and its escrow. Every package is signed over
 	 * "synapse-update/3\n<slug>\n<version>\n<sha256>\n<bytes>\n<package URL>\n<issued>\n<min safe version>"
-	 * (dev-tools/sign-release.mjs), which binds the plugin, the version, the
-	 * exact bytes and the address: an old, genuinely signed zip cannot be
-	 * re-labelled as a newer version, offered for another plugin or served
-	 * from somewhere else. 2.2.1: the record carries the day it was issued
-	 * and the lowest version without a known security fix; a record dated
-	 * before the one this site already saw is not believed (no way back to
-	 * an older record), and the plugins screen warns while this site runs a
-	 * version below the safe one. Records never expire: a customer sees every
-	 * release for life, so nothing has to be re-signed on a schedule.
+	 * which binds the plugin, the version, the exact bytes and the address: an
+	 * old, genuinely signed zip cannot be re-labelled as a newer version,
+	 * offered for another plugin or served from somewhere else. The record
+	 * carries the day it is issued and the lowest version without a known
+	 * security fix; a record dated before the one this site already saw is not
+	 * believed (no way back to an older record), and the plugins screen warns
+	 * while this site runs a version below the safe one. Records never expire:
+	 * a customer sees every release for life, so nothing has to be re-signed on
+	 * a schedule.
 	 */
 	const KEYS = array(
 		'k1' => 'GRuGzVdywPtC1a4Ws/2YcPdJwNsjJzbWiuJbIHPVvGo=',
@@ -99,11 +97,11 @@ class GTM_Server_Side_Plugin_Update {
 		add_action( 'upgrader_process_complete', array( $this, 'forget' ), 10, 2 );
 		// Before core's own check on that screen (priority 10), so "Check again" really asks.
 		add_action( 'load-update-core.php', array( $this, 'forget' ), 1 );
-		add_action( 'admin_notices', array( $this, 'safety_notice' ) );   // 2.2.1
+		add_action( 'admin_notices', array( $this, 'safety_notice' ) );
 	}
 
 	/**
-	 * Whether this site runs a version below the lowest safe one named by the last signed record (2.2.1).
+	 * Whether this site runs a version below the lowest safe one named by the last signed record.
 	 *
 	 * @return bool
 	 */
@@ -114,7 +112,7 @@ class GTM_Server_Side_Plugin_Update {
 	}
 
 	/**
-	 * The warning on the admin screens while the installed version is below the safe one (2.2.1).
+	 * The warning on the admin screens while the installed version is below the safe one.
 	 *
 	 * @return void
 	 */
@@ -206,7 +204,7 @@ class GTM_Server_Side_Plugin_Update {
 	}
 
 	/**
-	 * Refuse any download of this plugin that is not the signed release.
+	 * Refuse any download of this plugin that is not the signed package.
 	 *
 	 * WordPress verifies nothing about packages that do not come from
 	 * wordpress.org. This hook runs before the upgrader downloads; returning a
@@ -265,7 +263,7 @@ class GTM_Server_Side_Plugin_Update {
 	 *
 	 * Runs after any plugin update (the argument shape core passes) and when
 	 * the operator opens Dashboard > Updates (no arguments). The stored offer
-	 * stays: it is the record the pending update was offered on.
+	 * stays: it is the record the pending update is offered on.
 	 *
 	 * @return void
 	 */
@@ -311,7 +309,7 @@ class GTM_Server_Side_Plugin_Update {
 	}
 
 	/**
-	 * Whether a downloaded file is byte for byte the signed release.
+	 * Whether a downloaded file is byte for byte the signed package.
 	 *
 	 * @param  string $file Local path.
 	 * @param  array  $m    Release record.
@@ -375,8 +373,8 @@ class GTM_Server_Side_Plugin_Update {
 			return null;
 		}
 
-		// 2.2.1: the record's day and the lowest safe version are signed with everything else (format 3); a record
-		// dated before the one this site already saw is not believed (no way back to an older record); never expires.
+		// The record's day and the lowest safe version are signed with everything else (format 3); a record dated
+		// before the one this site already saw is not believed (no way back to an older record); never expires.
 		$issued = self::plain( $j, 'issued', '/^\d{4}-\d{2}-\d{2}$/' );
 		$safe   = self::plain( $j, 'min_safe_version', '/^\d+\.\d+\.\d+$/' );
 		if ( '' === $safe || '' === $issued || ! strtotime( $issued . 'T00:00:00Z' ) ) {

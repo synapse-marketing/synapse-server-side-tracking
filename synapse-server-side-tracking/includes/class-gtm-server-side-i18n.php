@@ -5,7 +5,6 @@
  * Loads and defines the internationalization files for this plugin
  * so that it is ready for translation.
  *
- * @since      1.0.0
  * @package    GTM_Server_Side
  * @subpackage GTM_Server_Side/includes
  */

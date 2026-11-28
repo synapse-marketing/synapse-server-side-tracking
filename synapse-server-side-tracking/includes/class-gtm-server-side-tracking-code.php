@@ -4,7 +4,6 @@
  *
  * @package    GTM_Server_Side
  * @subpackage GTM_Server_Side/includes
- * @since      2.0.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -79,32 +78,31 @@ class GTM_Server_Side_Tracking_Code {
 	 * @return void
 	 */
 	private function print_synapse_gtm_code() {
-		// The blocker probe comes first (2.1.0): it takes its fetch
-		// reference before any wrapper exists, so its two requests leave the
-		// browser exactly as written, which is what a content blocker has to see.
-		// The enhanced ad-blocker shim follows, as the next statement INSIDE the
-		// loader's own <script>, so a single first-party script both installs
-		// the network-API wrappers and injects the container - in that order.
-		// Wrappers are in place before the container script runs, so every hit
-		// it later sends is rewritten. It has no setting since 2.1.0: it ships
-		// whenever the container URL has a path prefix to scope it to, and the
-		// string is empty (only the loader is printed) when it has not; the
-		// probe ships under the same condition, since only a rewritten hit can
-		// carry its verdict. The keepalive helper follows the shim: it calls
-		// window.fetch at send time, so its hits go through the shim and leave
-		// encoded like any other. The GA4 recovery watchdog (when a GA4
-		// Measurement ID is set) is emitted after the shim on purpose: its
-		// observers then wrap on top of the shim's, so they see the plain
-		// (pre-encoding) hit URLs, while its own recovery hit - sent via a fetch
-		// reference captured after the shim installed - still gets encoded.
-		// 2.3.0: once the hourly check (GTM_Server_Side_Shield_Check) has seen
+		// The blocker probe comes first: it takes its fetch reference before any
+		// wrapper exists, so its two requests leave the browser exactly as
+		// written, which is what a content blocker has to see. The enhanced
+		// ad-blocker shim follows, as the next statement INSIDE the loader's own
+		// <script>, so a single first-party script both installs the network-API
+		// wrappers and injects the container - in that order. Wrappers are in
+		// place before the container script runs, so every hit it later sends is
+		// rewritten. It has no setting: it ships whenever the container URL has a
+		// path prefix to scope it to, and the string is empty (only the loader is
+		// printed) when it has not; the probe ships under the same condition,
+		// since only a rewritten hit can carry its verdict. The keepalive helper
+		// follows the shim: it calls window.fetch at send time, so its hits go
+		// through the shim and leave encoded like any other. The GA4 recovery
+		// watchdog (when a GA4 Measurement ID is set) is emitted after the shim
+		// on purpose: its observers then wrap on top of the shim's, so they see
+		// the plain (pre-encoding) hit URLs, while its own recovery hit - sent
+		// via a fetch reference captured after the shim installed - still gets
+		// encoded. Once the hourly check (GTM_Server_Side_Shield_Check) has seen
 		// the container address serve the shield (the probe, the shim, the
 		// keepalive helper and the GA4 watchdog composed into the loader script
 		// at the edge), the page prints the loader line alone and the loader
-		// brings the rest (2.3.1: the probe as well). Any doubt (no record, an
-		// expired one, a "no") prints everything inline as before, with the
-		// loader address 2.2.1 printed. Decided once per page: the loader line
-		// below asks for the shield exactly when the page relies on it.
+		// brings the rest, the probe as well. Any doubt (no record, an expired
+		// one, a "no") prints everything inline, with the loader address of an
+		// inline page. Decided once per page: the loader line below asks for the
+		// shield exactly when the page relies on it.
 		$shim   = $this->get_enhanced_adblocker_shim_js();
 		$served = '' !== $shim && GTM_Server_Side_Shield_Check::is_served();
 		$head   = $served ? '' : $this->get_blocker_probe_js() . $shim . $this->get_keepalive_helper_js() . $this->get_ga4_fallback_js();
@@ -122,19 +120,18 @@ class GTM_Server_Side_Tracking_Code {
 	 * script).
 	 *
 	 * With the custom loader the container id is the obfuscated query
-	 * "<key>=<base64>&<end>". It used to go through esc_js(), which is meant
-	 * for HTML attributes and turned that "&" into "&amp;", so every container
-	 * request carried a corrupted parameter. It is now a JSON string literal
-	 * (see js_string()); the rest of the snippet is unchanged.
+	 * "<key>=<base64>&<end>". It is printed as a JSON string literal (see
+	 * js_string()), not through esc_js(), which is meant for HTML attributes
+	 * and would turn that "&" into "&amp;" and corrupt every container request.
 	 *
-	 * @param  bool $shield 2.3.0: the page is printed for the loader, so its
+	 * @param  bool $shield The page is printed for the loader, so its
 	 *                      query asks the edge for the shield.
 	 * @return string
 	 */
 	private function get_gtm_loader_js( $shield = false ) {
 		$id_js = self::js_string( GTM_Server_Side_Helpers::get_gtm_container_id( $shield ) );
 
-		// The line 2.2.1 printed, on every page: a loader that fails loads
+		// The loader line, printed on every page: a loader that fails loads
 		// nothing more.
 		// phpcs:ignore Squiz.Strings.DoubleQuoteUsage.NotRequired
 		return "(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;j.src=\"" . esc_js( GTM_Server_Side_Helpers::get_gtm_container_url() ) . '/' . esc_js( GTM_Server_Side_Helpers::get_gtm_container_identifier() ) . ".js?\"+i;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer'," . $id_js . ');';
@@ -209,12 +206,10 @@ class GTM_Server_Side_Tracking_Code {
 	 * Print GTM Consent Loader Code.
 	 *
 	 * The gate runs where it is printed, before the parked script below it
-	 * exists in the document. 2.3.0: a consent already granted when the gate
-	 * runs (a consent tool earlier in the head that pushes a stored choice)
-	 * used to be counted as handled while the parked script was not there
-	 * yet, and the container never started. The gate now counts the consent
-	 * as handled only once it has released the parked script, and otherwise
-	 * tries again when the document is parsed and on every later consent
+	 * exists in the document. A consent already granted when the gate runs (a
+	 * consent tool earlier in the head that pushes a stored choice) counts as
+	 * handled only once the gate has released the parked script; otherwise the
+	 * gate tries again when the document is parsed and on every later consent
 	 * push.
 	 *
 	 * @return void
@@ -261,22 +256,22 @@ class GTM_Server_Side_Tracking_Code {
 	 * (credentials "omit") and are never cached. Each page asks again. Fails
 	 * open: any error leaves the verdict at 0.
 	 *
-	 * 2.1.1: a cached container can fire its first tags before the bait's
-	 * answer is processed, and those hits left unmarked. The probe therefore
-	 * also publishes when it started (__synBlkT), a promise that settles with
-	 * the bait (__synBlkP) and a flag set in the bait's own handlers (__synBlkS,
-	 * also set when the control fails, since no verdict can follow then), so
-	 * the shim can hold its first hits until the answer is in. Both requests
-	 * go at high priority: a verdict that hits wait on must not queue behind
-	 * the page's stylesheets.
+	 * A cached container can fire its first tags before the bait's answer is
+	 * processed, and those hits would leave unmarked. The probe therefore also
+	 * publishes when it started (__synBlkT), a promise that settles with the
+	 * bait (__synBlkP) and a flag set in the bait's own handlers (__synBlkS,
+	 * also set when the control fails, since no verdict can follow then), so the
+	 * shim can hold its first hits until the answer is in. Both requests go at
+	 * high priority: a verdict that hits wait on must not queue behind the
+	 * page's stylesheets.
 	 *
 	 * Ships under the same condition as the shim - a container URL with a path
 	 * - because only a rewritten hit can carry the verdict.
 	 *
-	 * 2.3.0: it also sets window.__synPrb = 1. The protection the edge composes
-	 * into the loader script (the shield) stands down entirely when it finds
-	 * __synBlk set without __synPrb, which is what a 2.2.1 page prints; with
-	 * __synPrb it only skips its own copy of this probe.
+	 * It also sets window.__synPrb = 1. The protection the edge composes into
+	 * the loader script (the shield) stands down entirely when it finds
+	 * __synBlk set without __synPrb, which is what a page of an earlier version
+	 * prints; with __synPrb it only skips its own copy of this probe.
 	 *
 	 * @return string Bare IIFE, or '' when there is no path prefix.
 	 */
@@ -310,9 +305,9 @@ class GTM_Server_Side_Tracking_Code {
 	 * the opening statement of the loader's own script tag - one first-party
 	 * script installs the wrappers and then loads the container. Returns '' when
 	 * the transport has no distinctive path prefix to scope the rewrite to (a
-	 * bare origin), so nothing unrelated is touched. There is no setting for it
-	 * since 2.1.0: wherever it can run (the custom loader is active, which is
-	 * the only caller, and the container URL has a path) it does.
+	 * bare origin), so nothing unrelated is touched. There is no setting for it:
+	 * wherever it can run (the custom loader is active, which is the only
+	 * caller, and the container URL has a path) it does.
 	 *
 	 * The "ei" param key must stay in sync with EAB_PARAM in the edge worker.
 	 *
@@ -323,49 +318,48 @@ class GTM_Server_Side_Tracking_Code {
 	 * Client treats "_synr" as transport, never as event data. A hit in the
 	 * plain fallback form below carries no mark: it left untouched.
 	 *
-	 * The hold (2.1.1). A fetch sent with keepalive before the probe has its
-	 * answer is held, and rewritten only when it leaves, so its mark follows
-	 * the verdict. The caller gets a Promise that settles with the real fetch.
-	 * Every held request leaves exactly once, in call order, at the FIRST of:
-	 * the bait settling, 300 ms, pagehide, or the page turning hidden. The
-	 * first of these closes the hold for good before anything is sent, so a
-	 * fetch made by a later pagehide listener (the GA4 watchdog, Google's own
-	 * tag) goes straight out; all four are registered here, before any other
-	 * script can add its own. Nothing is held while the page is hidden, and
-	 * never a request without keepalive (flushed at unload it would be
-	 * cancelled, which would be worse than an unmarked hit). sendBeacon and
-	 * XMLHttpRequest are never held: they use the verdict of the moment, as in
-	 * 2.1.0. One failing item cannot stop the rest: it is sent in its original
-	 * form, and its caller's promise always settles.
+	 * The hold. A fetch sent with keepalive before the probe has its answer is
+	 * held, and rewritten only when it leaves, so its mark follows the verdict.
+	 * The caller gets a Promise that settles with the real fetch. Every held
+	 * request leaves exactly once, in call order, at the FIRST of: the bait
+	 * settling, 300 ms, pagehide, or the page turning hidden. The first of
+	 * these closes the hold for good before anything is sent, so a fetch made
+	 * by a later pagehide listener (the GA4 watchdog, Google's own tag) goes
+	 * straight out; all four are registered here, before any other script can
+	 * add its own. Nothing is held while the page is hidden, and never a
+	 * request without keepalive (flushed at unload it would be cancelled, which
+	 * would be worse than an unmarked hit). sendBeacon and XMLHttpRequest are
+	 * never held: they use the verdict of the moment. One failing item cannot
+	 * stop the rest: it is sent in its original form, and its caller's promise
+	 * always settles.
 	 *
 	 * A worker that does not decode "ei" answers the encoded request with a 4xx
 	 * (404 where the route is missing, 400 where an unknown path is passed on
-	 * to the server container). That used to lose every hit silently: the shim
-	 * rewrote and forwarded, and never looked at what came back. It now reads
-	 * the response where a response exists - fetch and XMLHttpRequest, not
-	 * sendBeacon - and on the first 4xx it resends that one request in its
-	 * original plain form, stops encoding for the rest of the page so nothing
-	 * else is doubled, and raises one "ei" signal carrying the status. A 5xx
-	 * raises the signal but is neither resent nor treated as a broken worker,
-	 * because a server that failed after accepting the hit would count it
-	 * twice. A network error changes nothing: that is the ad-blocker case the
-	 * encoding exists for, and falling back there would hand the hit to the
-	 * blocker.
+	 * to the server container). A shim that only rewrote and forwarded would
+	 * lose every such hit silently, so the shim reads the response where a
+	 * response exists - fetch and XMLHttpRequest, not sendBeacon - and on the
+	 * first 4xx it resends that one request in its original plain form, stops
+	 * encoding for the rest of the page so nothing else is doubled, and raises
+	 * one "ei" signal carrying the status. A 5xx raises the signal but is
+	 * neither resent nor treated as a broken worker, because a server that
+	 * failed after accepting the hit would count it twice. A network error
+	 * changes nothing: that is the ad-blocker case the encoding exists for, and
+	 * falling back there would hand the hit to the blocker.
 	 *
-	 * 2.3.0. A second copy on the same page installs nothing (__synShim): the
-	 * page can carry this copy and the loader can bring the shield, which is
-	 * built from this same source. Where the shim runs as part of that shield
+	 * A second copy on the same page installs nothing (__synShim): the page can
+	 * carry this copy and the loader can bring the shield, which is built from
+	 * this same source. Where the shim runs as part of that shield
 	 * (window.__synShd, set by the edge), it also rewrites the src of image and
-	 * script elements under the path, through the src setters and
-	 * setAttribute, except the loader itself, /gtm.js, /ns.html, /healthy,
-	 * /gtm/* and the two probes; scripts carry no "_synr=3". Only a worker
-	 * that serves the shield is known to decode "ei" before it decides what a
-	 * request is, so the copy printed in the page never touches elements. The
-	 * original address of a rewritten element is kept in window.__synSrc (a
-	 * WeakMap) for the GA4 watchdog. A disguised script keeps one name from
-	 * one view to the next (a hash of its own address, h()), so the browser
-	 * can keep the Google tag script as Google's headers allow instead of
-	 * fetching it on every page; hits and images keep their random names.
+	 * script elements under the path, through the src setters and setAttribute,
+	 * except the loader itself, /gtm.js, /ns.html, /healthy, /gtm/* and the two
+	 * probes; scripts carry no "_synr=3". Only a worker that serves the shield
+	 * is known to decode "ei" before it decides what a request is, so the copy
+	 * printed in the page never touches elements. The original address of a
+	 * rewritten element is kept in window.__synSrc (a WeakMap) for the GA4
+	 * watchdog. A disguised script keeps one name from one view to the next (a
+	 * hash of its own address, h()), so the browser can keep the Google tag
+	 * script as Google's headers allow instead of fetching it on every page;
+	 * hits and images keep their random names.
 	 *
 	 * @return string
 	 */
@@ -410,34 +404,34 @@ class GTM_Server_Side_Tracking_Code {
 	 * container never loads (blocked, or consent-gated and never granted) the
 	 * watchdog never arms, so no unconsented hit is ever produced.
 	 *
-	 * Proof of death (2.1.0). Waiting is what keeps the watchdog from doubling
-	 * a slow but healthy Google tag, but it lost every visit shorter than the
-	 * pagehide guard (2.5 s after arming): Brave Shields replace Google's tag
-	 * script with a stand-in that never starts, a content blocker in Safari
-	 * refuses it outright, and a visitor clicking on after 2-3 s got no GA4.
-	 * So the watchdog now also watches the Google tag SCRIPT for its own
-	 * measurement id (".../gtag/js?id=<id>", any host, id case-insensitive; a
-	 * ".../gtag/destination?id=<id>" script counts on refusal only), with
-	 * capture listeners on document - "load" never reaches window. The tag is
-	 * proven dead when every such script has either failed to load (error),
-	 * or loaded more than 1 s ago without the real code having started: no
-	 * google_tag_manager[<id>], and no google_tag_data.tidr.container[<id>]
-	 * with state 2, which GTM sets for every alias of a combined Google tag
-	 * that is running. The stand-in rule is off while Tag Assistant is
-	 * attached. A script still loading, or one printed before the watchdog
-	 * ran (its outcome unknown), rules proof out. With proof and the container
-	 * up, leaving the page and the tab going to the background recover at
-	 * once: Google's tag cannot send on this page, so nothing can be doubled.
-	 * The 8 s timer is unchanged, so the consent banner keeps its grace
-	 * period; it now also waits while a Google tag script is still loading,
-	 * and for 2.5 s after a late one loads, up to 20 s after arming, instead
-	 * of doubling a slow tag. Nothing arms or fires while the page is
-	 * prerendered, and a pagehide into the back/forward cache with a script
-	 * still loading does not fire. Every recovered hit carries "_synw" =
-	 * <reason>.<trigger> (err | standin | silent . pagehide | hidden | timer)
-	 * as a plain query parameter, so the server logs show why each recovery
-	 * happened. It is not an event parameter (no "ep."), so GA4 ignores it:
-	 * sGTM passes such parameters on unchanged, as it does the worker's "_se".
+	 * Proof of death. Waiting is what keeps the watchdog from doubling a slow
+	 * but healthy Google tag, but waiting alone would lose every visit shorter
+	 * than the pagehide guard (2.5 s after arming): Brave Shields replace
+	 * Google's tag script with a stand-in that never starts, a content blocker
+	 * in Safari refuses it outright, and a visitor clicking on after 2-3 s
+	 * would get no GA4. So the watchdog also watches the Google tag SCRIPT for
+	 * its own measurement id (".../gtag/js?id=<id>", any host, id
+	 * case-insensitive; a ".../gtag/destination?id=<id>" script counts on
+	 * refusal only), with capture listeners on document - "load" never reaches
+	 * window. The tag is proven dead when every such script has either failed
+	 * to load (error), or loaded more than 1 s ago without the real code having
+	 * started: no google_tag_manager[<id>], and no
+	 * google_tag_data.tidr.container[<id>] with state 2, which GTM sets for
+	 * every alias of a combined Google tag that is running. The stand-in rule
+	 * is off while Tag Assistant is attached. A script still loading, or one
+	 * printed before the watchdog ran (its outcome unknown), rules proof out.
+	 * With proof and the container up, leaving the page and the tab going to
+	 * the background recover at once: Google's tag cannot send on this page, so
+	 * nothing can be doubled. The 8 s timer gives the consent banner its grace
+	 * period; it also waits while a Google tag script is still loading, and for
+	 * 2.5 s after a late one loads, up to 20 s after arming, instead of
+	 * doubling a slow tag. Nothing arms or fires while the page is prerendered,
+	 * and a pagehide into the back/forward cache with a script still loading
+	 * does not fire. Every recovered hit carries "_synw" = <reason>.<trigger>
+	 * (err | standin | silent . pagehide | hidden | timer) as a plain query
+	 * parameter, so the server logs show why each recovery happened. It is not
+	 * an event parameter (no "ep."), so GA4 ignores it: sGTM passes such
+	 * parameters on unchanged, as it does the worker's "_se".
 	 *
 	 * Consent
 	 * state is read from the dataLayer's gtag consent entries and mirrored
@@ -450,32 +444,32 @@ class GTM_Server_Side_Tracking_Code {
 	 * fetch reference captured after the shim installed - so it is encoded
 	 * like every other hit. Fails open: any error leaves the page untouched.
 	 *
-	 * Since 2.1.0 there is no separate switch: the watchdog ships exactly when
-	 * a GA4 Measurement ID is set. It is also always this inline form, which
-	 * carries its own observers; the edge-served copy is gone.
+	 * There is no separate switch: the watchdog ships exactly when a GA4
+	 * Measurement ID is set. It is always this inline form, which carries its
+	 * own observers.
 	 *
 	 * The measurement id and the raw container id travel base64-encoded (see
-	 * encode_id()) and dec() decodes them at runtime, by the rule the edge copy
-	 * used: a value containing "-" is a plain id and passes through, anything
-	 * else goes through atob(), and a value that does not decode reads as "",
-	 * which switches the watchdog off instead of arming it against a wrong key.
-	 * The page therefore carries no readable Google id, while every request the
-	 * watchdog sends is byte for byte what it was before.
+	 * encode_id()) and dec() decodes them at runtime: a value containing "-" is
+	 * a plain id and passes through, anything else goes through atob(), and a
+	 * value that does not decode reads as "", which switches the watchdog off
+	 * instead of arming it against a wrong key. The page therefore carries no
+	 * readable Google id, while every request the watchdog sends is byte for
+	 * byte the same as with plain ids.
 	 *
 	 * @return string Bare IIFE, or '' when the feature is off/unconfigured.
 	 */
-	// 2.3.0: gt() reads the original address of a script element the shield
-	// rewrote (window.__synSrc) before its src, so a disguised Google tag script
-	// is judged exactly like a plain one. Every recovery, by the timer, on
-	// pagehide or when the page is hidden, first reads the browser's resource
-	// timing (heard(), the last gate in fire()): a GA4 hit the Google tag sent on
-	// its own, before the watchdog installed or while it waited, is never doubled.
-	// The timing keeps a request's address and nothing of its body, so it counts
-	// a hit only when the address itself names this site's GA4 id (ga4()'s third
-	// argument; B-02 of the fifth review). An address without an id is unknown
-	// to it and stops no recovery: read as ours, a hit of another property that
-	// carries its id in the body silenced the recovery of this one. The hooks on
-	// fetch, sendBeacon and XMLHttpRequest see the body and judge as before.
+	// gt() reads the original address of a script element the shield rewrote
+	// (window.__synSrc) before its src, so a disguised Google tag script is judged
+	// exactly like a plain one. Every recovery, by the timer, on pagehide or when
+	// the page is hidden, first reads the browser's resource timing (heard(), the
+	// last gate in fire()): a GA4 hit the Google tag sent on its own, before the
+	// watchdog installed or while it waited, is never doubled. The timing keeps a
+	// request's address and nothing of its body, so it counts a hit only when the
+	// address itself names this site's GA4 id (ga4()'s third argument). An address
+	// without an id is unknown to it and stops no recovery: read as ours, a hit of
+	// another property that carries its id in the body would silence the recovery
+	// of this one. The hooks on fetch, sendBeacon and XMLHttpRequest see the body
+	// and judge by it.
 	private function get_ga4_fallback_js() {
 		// ---- SHIELD PIECE BEGIN ----
 		$tid = GTM_Server_Side_Helpers::get_ga4_fallback_id();

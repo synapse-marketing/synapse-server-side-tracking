@@ -4,7 +4,6 @@
  *
  * @package    GTM_Server_Side
  * @subpackage GTM_Server_Side/includes
- * @since      2.0.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -262,12 +261,12 @@ class GTM_Server_Side_Admin_Settings_General {
 			GTM_SERVER_SIDE_ADMIN_GROUP_GENERAL
 		);
 
-		// The settings removed in 2.1.0 (enhanced ad-blocker protection, the GA4
-		// recovery checkbox, the data transport rescue and the edge-served
-		// sender) are deliberately NOT registered any more. A registered option
-		// with no field on the page is cleared by every save, and their stored
-		// values must survive untouched so that reinstalling 2.0.x restores
-		// exactly what the site had.
+		// The retired settings (enhanced ad-blocker protection, the GA4 recovery
+		// checkbox, the data transport rescue and the edge-served sender) are
+		// deliberately NOT registered. A registered option with no field on the
+		// page is cleared by every save, and their stored values must survive
+		// untouched so that reinstalling an earlier version restores exactly
+		// what the site had.
 		register_setting(
 			GTM_SERVER_SIDE_ADMIN_GROUP,
 			GTM_SERVER_SIDE_FIELD_GA4_FALLBACK_ID,

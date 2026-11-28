@@ -25,9 +25,9 @@ define( 'GTM_SERVER_SIDE_FIELD_PLACEMENT', 'synapse_ct_placement' );
 define( 'GTM_SERVER_SIDE_FIELD_WEB_CONTAINER_ID', 'synapse_ct_web_container_id' );
 define( 'GTM_SERVER_SIDE_FIELD_WEB_CONTAINER_URL', 'synapse_ct_web_container_url' );
 define( 'GTM_SERVER_SIDE_FIELD_WEB_IDENTIFIER', 'synapse_ct_web_identifier' );
-// GA4 measurement recovery is on exactly when this ID is set (2.1.0). The
-// settings removed in 2.1.0 have no constant any more; the upgrade routine
-// reads the one it needs, and none of their options is ever deleted.
+// GA4 measurement recovery is on exactly when this ID is set. The retired
+// settings have no constant; the upgrade routine reads the one it needs,
+// and none of their options is ever deleted.
 define( 'GTM_SERVER_SIDE_FIELD_GA4_FALLBACK_ID', 'synapse_ct_ga4_fallback_id' );
 define( 'GTM_SERVER_SIDE_FIELD_CLICK_ID_RESTORER_GOOGLE', 'synapse_ct_click_id_restorer_google' );
 // Values for field `GTM_SERVER_SIDE_FIELD_PLACEMENT`.

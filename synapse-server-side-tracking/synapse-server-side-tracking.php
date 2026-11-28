@@ -2,13 +2,12 @@
 /**
  * Main plugin file.
  *
- * @since             2.0.0
  * @package           GTM_Server_Side
  *
  * @wordpress-plugin
  * Plugin Name:       Synapse Server-Side Tracking
  * Description:       Server-side tagging for a self-hosted Google Tag Manager server container: embeds the web GTM snippet with a custom first-party loader, enhanced ad-blocker protection and GA4 measurement recovery for hostile browser privacy modes, configures WooCommerce data layer events, and restores lost ad click IDs.
- * Version:           2.4.0
+ * Version:           2.4.1
  * Requires at least: 5.8
  * Requires PHP:      7.2
  * Update URI:        https://raw.githubusercontent.com/synapse-marketing/synapse-server-side-tracking/main/updates/manifest.json
@@ -21,17 +20,17 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * One copy at a time (2.4.0).
+ * One copy at a time.
  *
- * The plugin's folder and main file carry its name since 2.4.0, so WordPress
- * installs this copy beside one that still sits in a folder of another
- * name, and the two declare the same classes. Activating this copy switches
- * every other copy of this plugin off in the same step, without running its
- * deactivation (on a network activation: on every site). The settings are
- * the same options and pass on untouched; the version change is handled on
- * the next request like any update. In the request in which that happens
- * the other copy has already loaded, so this file stands back until the
- * next one. A copy is told by a file only this plugin has, never by a name.
+ * The plugin's folder and main file carry its name, so WordPress installs this
+ * copy beside one that sits in a folder of another name, and the two declare
+ * the same classes. Activating this copy switches every other copy of this
+ * plugin off in the same step, without running its deactivation (on a network
+ * activation: on every site). The settings are the same options and pass on
+ * untouched; the version change is handled on the next request like any update.
+ * In the request in which that happens the other copy has already loaded, so
+ * this file stands back until the next one. A copy is told by a file only this
+ * plugin has, never by a name.
  */
 register_activation_hook(
 	__FILE__,

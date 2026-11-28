@@ -1,27 +1,27 @@
 {
   "slug": "synapse-server-side-tracking",
-  "version": "2.4.0",
-  "package": "https://raw.githubusercontent.com/synapse-marketing/synapse-server-side-tracking/main/updates/synapse-server-side-tracking-2.4.0.zip",
+  "version": "2.4.1",
+  "package": "https://raw.githubusercontent.com/synapse-marketing/synapse-server-side-tracking/main/updates/synapse-server-side-tracking-2.4.1.zip",
   "homepage": "https://synapse-marketing.com/",
   "requires": "5.8",
   "tested": "6.9",
   "requires_php": "7.2",
-  "last_updated": "2026-11-25",
-  "package_bytes": 121971,
-  "package_sha256": "9e1059a6d5eea5bc1f493a248737c473d25b271dbb7d6e8692e5c41fba994dda",
-  "signature": "o3eQWN/5LBoD35NEcnFmDv7rGJgByO+r/hOHeaIw4psXe7N4191+4peV4e49XBEVZ+wmUAoOfXl/7Y3j3yKfAQ==",
+  "last_updated": "2026-11-28",
+  "package_bytes": 120976,
+  "package_sha256": "a4934572efacacdadd9c5f0c0ea5ebf62c5a964ba99fbb4cf96993d84d41abc7",
+  "signature": "/mqjlFWkmTIdqAfAGGkwpq37ywQbvfpu6/kk8I9yPvZ8+bDQlIkENhWSjQd+wpcptXVYBH3HHXKdWDrg34/SAw==",
   "signed": "ed25519 over sha256(zip) + \"\\n\" + version (installs before 2.1.2)",
-  "signature_v2": "XFj9w+EXNtJ1P93Gm4Ze3NztXHBPEqAVBjVXLa3x2+1NwxckFc23gy00XyPIoqJaPDsoJsR94G+BB5vlZNrVBw==",
+  "signature_v2": "aFHhGmepwpIAWGSbYAn9z0NOSkkNiucmeocGF9WFfEpMdoiwa3dwAQ/wTwkyNIKMs16yRLoViKcUVZ5YhkG/Dw==",
   "signature_v2_kid": "k1",
   "signed_v2": "ed25519 over \"synapse-update/2\\n\" + slug + \"\\n\" + version + \"\\n\" + sha256 + \"\\n\" + bytes + \"\\n\" + package",
-  "issued": "2026-11-25",
+  "issued": "2026-11-28",
   "min_safe_version": "2.2.1",
-  "signature_v3": "ObUvz+Ih4UbRYVhXkZqfVdaDQCd6+MR32TBBfleS3mUoumGyq1yj/DOrQWw7A89v+DqkxVvnV/0QlZOeg0PpCQ==",
+  "signature_v3": "cLmaIAHX+nAGeR440+/xBmuH5cwWXSJel/0RGxTDG9ET7TKQE/RMi6ZWD0MuECzK8+2ppKn+nQRMT4ALcFQaDQ==",
   "signature_v3_kid": "k1",
   "signed_v3": "ed25519 over \"synapse-update/3\\n\" + slug + \"\\n\" + version + \"\\n\" + sha256 + \"\\n\" + bytes + \"\\n\" + package + \"\\n\" + issued + \"\\n\" + min_safe_version",
   "public_key": "GRuGzVdywPtC1a4Ws/2YcPdJwNsjJzbWiuJbIHPVvGo=",
   "sections": {
     "description": "<p>Server-side tagging for a self-hosted Google Tag Manager server container.</p>",
-    "changelog": "<h4>2.4.0</h4>\n<ul>\n<li>Changed: the plugin is now named Synapse Server-Side Tracking, and its folder and main file carry the new name. WordPress therefore installs it beside an earlier copy instead of updating that copy: upload it once and activate it. On activation it switches the earlier copy off; the settings stay as they are and nothing is deleted.</li>\n<li>Added: the page protection (the ad-blocker shim, the keepalive helper and the GA4 watchdog) can now travel inside the container loader script instead of the page. Once an hour the site asks its container address whether the loader carries it; while the answer is yes the page prints only the loader line and the loader brings the rest, otherwise everything stays inline as before. No setting.</li>\n<li>Added: while the loader brings the protection, images and scripts the container loads under the site's own path are disguised like the hits; the loader's own name, the container file and the probes are left alone.</li>\n<li>Fixed: the thank-you page's confirmation that a purchase was delivered now reaches the site, so the purchase is not pushed again on later views of that page. The add-to-cart event now also works on PHP 7.2 with WordPress versions older than 5.9.</li>\n<li>Fixed: the login event is now pushed to the data layer on the first page a visitor opens after logging in.</li>\n</ul>\n<h4>2.2.1</h4>\n<ul>\n<li>Every update carries a signed record with its date and the lowest version without a known security fix; the plugins screen warns when this site runs an older version than that.</li>\n</ul>\n<h4>2.2.0</h4>\n<ul>\n<li>Changed: a purchase counts as delivered only after the browser's Google Tag Manager has processed it; the thank-you page confirms that back to the site. Until it does, the next views of the thank-you page push the purchase again (at most three times) with the same event id and transaction id, so Google Analytics and Meta count it once. A blocked tag manager, a closed tab or a page cut mid-way no longer loses the purchase on the first try.</li>\n<li>Added: <code>event_id</code> in the purchase data layer push, stable for the order.</li>\n<li>Orders from before this version keep their \"sent\" stamp and are not pushed again.</li>\n</ul>\n"
+    "changelog": "<h4>2.4.1</h4>\n<ul>\n<li>Changed: only the code comments, rewritten as plain English notes on what the code does. Tracking, the page protection, the settings and the updates work the same as in 2.4.0.</li>\n</ul>\n<h4>2.4.0</h4>\n<ul>\n<li>Changed: the plugin is now named Synapse Server-Side Tracking, and its folder and main file carry the new name. WordPress therefore installs it beside an earlier copy instead of updating that copy: upload it once and activate it. On activation it switches the earlier copy off; the settings stay as they are and nothing is deleted.</li>\n<li>Added: the page protection (the ad-blocker shim, the keepalive helper and the GA4 watchdog) can now travel inside the container loader script instead of the page. Once an hour the site asks its container address whether the loader carries it; while the answer is yes the page prints only the loader line and the loader brings the rest, otherwise everything stays inline as before. No setting.</li>\n<li>Added: while the loader brings the protection, images and scripts the container loads under the site's own path are disguised like the hits; the loader's own name, the container file and the probes are left alone.</li>\n<li>Fixed: the thank-you page's confirmation that a purchase was delivered now reaches the site, so the purchase is not pushed again on later views of that page. The add-to-cart event now also works on PHP 7.2 with WordPress versions older than 5.9.</li>\n<li>Fixed: the login event is now pushed to the data layer on the first page a visitor opens after logging in.</li>\n</ul>\n<h4>2.2.1</h4>\n<ul>\n<li>Every update carries a signed record with its date and the lowest version without a known security fix; the plugins screen warns when this site runs an older version than that.</li>\n</ul>\n<h4>2.2.0</h4>\n<ul>\n<li>Changed: a purchase counts as delivered only after the browser's Google Tag Manager has processed it; the thank-you page confirms that back to the site. Until it does, the next views of the thank-you page push the purchase again (at most three times) with the same event id and transaction id, so Google Analytics and Meta count it once. A blocked tag manager, a closed tab or a page cut mid-way no longer loses the purchase on the first try.</li>\n<li>Added: <code>event_id</code> in the purchase data layer push, stable for the order.</li>\n<li>Orders from before this version keep their \"sent\" stamp and are not pushed again.</li>\n</ul>\n"
   }
 }

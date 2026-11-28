@@ -105,9 +105,9 @@
 	 * With "Decorate dataLayer event name" on, add_to_cart and remove_from_cart
 	 * are held back until an admin-ajax call answers. A cart form that submits
 	 * and navigates takes the ajaxComplete listener and the 1500 ms timer with
-	 * it, so the event was never pushed at all - the enrichment was optional,
-	 * the event was not. Anything still pending is flushed on the way out,
-	 * without the cart state it never received.
+	 * it, and the event would never be pushed at all: the enrichment is
+	 * optional, the event is not. Anything still pending is flushed on the way
+	 * out, without the cart state it never received.
 	 */
 	var pendingFlushes = [];
 	var flushHooked    = false;
@@ -215,7 +215,7 @@
 		 * Collect the ordered children of a grouped product.
 		 *
 		 * WooCommerce renders every child with quantity="0", so rows are kept
-		 * only when a positive quantity was actually typed - otherwise a single
+		 * only when a positive quantity is actually typed - otherwise a single
 		 * click would report every child in the group as added.
 		 *
 		 * @param object $elForm Grouped add-to-cart form.
@@ -277,11 +277,11 @@
 		 * defaultValue is a string, so a loose comparison against a number would
 		 * let an empty field masquerade as 0.
 		 *
-		 * The delta is measured against what was last reported for this field,
-		 * not against the value the page was rendered with. On a cart that
+		 * The delta is measured against the last value reported for this field,
+		 * not against the value the page is rendered with. On a cart that
 		 * updates without a reload a second edit would otherwise be reported as
 		 * the whole distance from the original and the counts would drift: 10 to
-		 * 12 to 15 sent +2 and then +5 for a real change of +5.
+		 * 12 to 15 would send +2 and then +5 for a real change of +5.
 		 *
 		 * An unreadable value is left alone rather than folded back onto the
 		 * original. A cleared field is someone mid-edit, not an intent to change
@@ -655,7 +655,7 @@
 			var self  = this;
 			var fired = false;
 
-			// Leaving before the cart state was even asked for: push the event
+			// Leaving before the cart state is even asked for: push the event
 			// as it stands rather than losing it with the page.
 			var onLeave = function () {
 				if ( fired ) {
@@ -706,8 +706,8 @@
 		}
 	};
 
-	// Kept on window: only this file uses it today, but site owners have been
-	// able to call it since 2.0 and removing it would break their snippets.
+	// Kept on window: only this file uses it today, but snippets of a site may
+	// call it, and removing it would break them.
 	window.pluginGtmServerSide = pluginGtmServerSide;
 
 	jQuery( document ).ready(
@@ -729,7 +729,7 @@
 					//
 					// Every other key is not a cart action. keypress runs
 					// BEFORE the browser inserts the character, so replacing
-					// 10 with 12 passes through "1" and used to be reported as
+					// 10 with 12 passes through "1", which would be reported as
 					// nine items removed that nobody removed. Only a confirmed
 					// update may produce an event.
 					if ( 13 !== e.which && 13 !== e.keyCode && 'Enter' !== e.key ) {
@@ -743,11 +743,11 @@
 			/**
 			 * Archive and block-grid add to cart.
 			 *
-			 * One handler, not two: the block-grid selector used to be a strict
-			 * subset of the archive one, so both matched the same click and only
-			 * the placement of the data attributes kept them from double-pushing.
-			 * The data source is resolved with a fallback instead - the button's
-			 * own dataset first, then the nearest ancestor carrying an item id.
+			 * One handler, not two: the archive selector also matches every
+			 * block-grid button, so a second handler would push the same click
+			 * twice. The data source is resolved with a fallback instead - the
+			 * button's own dataset first, then the nearest ancestor carrying an
+			 * item id.
 			 */
 			jQuery( document ).on(
 				'click',

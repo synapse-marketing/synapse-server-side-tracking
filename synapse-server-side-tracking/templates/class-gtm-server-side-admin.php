@@ -2,9 +2,7 @@
 /**
  * Provide a admin area view for the plugin
  *
- * This file is used to markup the admin-facing aspects of the plugin.
- *
- * @since      1.0.0
+ * This file marks up the admin-facing aspects of the plugin.
  *
  * @package    GTM_Server_Side
  * @subpackage GTM_Server_Side/admin/partials

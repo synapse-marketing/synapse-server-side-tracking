@@ -3,7 +3,7 @@ Contributors: synapse
 Tags: google tag manager, server-side tagging, sgtm, woocommerce, data layer
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.4.0
+Stable tag: 2.4.1
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -42,6 +42,11 @@ service integrations were removed; loader serving is delegated to your own
 edge infrastructure.
 
 == Changelog ==
+
+= 2.4.1 =
+* Changed: only the code comments, rewritten as plain English notes on
+  what the code does. Tracking, the page protection, the settings and the
+  updates work the same as in 2.4.0.
 
 = 2.4.0 =
 * Changed: the plugin is now named Synapse Server-Side Tracking, and its

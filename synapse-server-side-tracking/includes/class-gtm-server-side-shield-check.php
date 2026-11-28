@@ -1,6 +1,6 @@
 <?php
 /**
- * The shield check (2.3.0).
+ * The shield check.
  *
  * Once an hour WP-Cron asks the loader address itself whether the protection
  * (the blocker probe, the ad-blocker shim, the keepalive helper and the GA4
@@ -22,12 +22,12 @@
  * The answer is kept in ONE autoloaded option with an expiry and the md5 of
  * the address asked, so a page never pays a query for it. "yes" lets the page
  * print the loader line alone and leave the rest to the loader, but only
- * while the address a page would ask is the address the "yes" was given for:
- * a value changed under the record (a settings save, an importer, a migration,
- * an answer that arrives after a reset) prints inline until the next run says
+ * while the address a page would ask is the address the "yes" is given for: a
+ * value changed under the record (a settings save, an importer, a migration, an
+ * answer that arrives after a reset) prints inline until the next run says
  * "yes" for the new address. "no", an expired or unbound record, no record at
  * all, and a value the worker's parser would refuse or read back short (the
- * contract below) keep everything inline, exactly as 2.2.1 printed it.
+ * contract below) keep everything inline.
  *
  * A "yes" holds 90 minutes and is renewed hourly, so a stalled WP-Cron falls
  * back to inline on its own. A request that gets no answer at all (a timeout,
@@ -47,7 +47,7 @@
  *
  * A dropped record carries a generation count one higher, and a run stores
  * its answer only under the generation it asked under, read fresh from the
- * database: an answer that arrives after the record was dropped (a reset, an
+ * database: an answer that arrives after the record is dropped (a reset, an
  * update, a deactivation while the three seconds ran; for this address or
  * another, or the same address set, changed and set back) is not stored; the
  * run the reset scheduled asks again. WordPress options know no compare-and-
@@ -57,24 +57,23 @@
  * Whenever a record that said "yes" gives way to a "no" (a "no" after a "yes",
  * live or run out; a reset; deactivation), the page caches this plugin knows
  * are purged, so no cached page printed for the loader keeps relying on one
- * that may no longer bring the protection: WP Rocket, WP Super Cache, W3 Total
- * Cache and LiteSpeed Cache, and the object cache only where none of the four
- * is found (the last resort). A "yes" dropped without a purge
- * (a version change, an activation) is remembered in the record until the next
- * "no", reset or deactivation purges for it, so the purge is never lost on the
- * way; the note of a purge goes on the record the purge was decided for, never
- * over one written while the purge ran. The action synapse_ct_purge_page_caches
- * fires with every purge, for a cache this plugin does not know (a host cache,
- * Cloudflare APO, a Cache Rule): those are the owner's to purge. No setting, no
- * visible text.
+ * that may not bring the protection: WP Rocket, WP Super Cache, W3 Total Cache
+ * and LiteSpeed Cache, and the object cache only where none of the four is
+ * found (the last resort). A "yes" dropped without a purge (a version change,
+ * an activation) is remembered in the record until the next "no", reset or
+ * deactivation purges for it, so the purge is never lost on the way; the note
+ * of a purge goes on the record the purge is decided for, never over one
+ * written while the purge ran. The action synapse_ct_purge_page_caches fires
+ * with every purge, for a cache this plugin does not know (a host cache,
+ * Cloudflare APO, a Cache Rule): those are purged by the site itself. No
+ * setting, no visible text.
  *
  * The other way round, a "yes" that follows anything but a "yes" (the first
  * one, one after a "no", after a reset, a version change, an activation)
- * purges the same caches once, after the record is written (the owner's
- * decision of 9 Nov 2026): the pages cached until then carry the whole block
- * inline, correct but long, and would stay so until their cache ran out. A
- * "yes" that follows a "yes", live or run out, purges nothing, so the hourly
- * renewal and a stalled WP-Cron never purge.
+ * purges the same caches once, after the record is written: the pages cached
+ * until then carry the whole block inline, correct but long, and would stay so
+ * until their cache runs out. A "yes" that follows a "yes", live or run out,
+ * purges nothing, so the hourly renewal and a stalled WP-Cron never purge.
  *
  * A page view reads the record and the options that hold the loader's own
  * address, all autoloaded, and never asks the network. The scheduling
@@ -85,7 +84,6 @@
  *
  * @package	   GTM_Server_Side
  * @subpackage GTM_Server_Side/includes
- * @since	   2.3.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -106,8 +104,8 @@ class GTM_Server_Side_Shield_Check {
 	 * array( 'v' => 'yes'|'no', 'until' => <unix time>, 'fp' => <md5 of the address asked, '' for a "no">,
 	 *        'g' => <generation: counted up each time the record is dropped>,
 	 *        'y' => 1 while pages printed for the loader may sit in a page cache, 0 once purged ).
-	 * A record without 'g' or 'y' (written by the build reviewed on 4 Nov 2026) reads as generation 0 and, when it
-	 * says "yes", as pages that may be cached. A key this version does not write is never read.
+	 * A record without 'g' or 'y' reads as generation 0 and, when it says "yes", as pages that may be cached. A
+	 * key this version does not write is never read.
 	 */
 	const OPTION = 'synapse_ct_shield';
 
@@ -142,13 +140,13 @@ class GTM_Server_Side_Shield_Check {
 	 * is never asked for: such a page prints inline.
 	 *
 	 * ID_CUT_RE is the loader's own rule for the container id a query names
-	 * (decodeContainerId in the workers, unchanged since 1.1 and v5.5), which
-	 * reads upper-case letters and digits after "GTM-" as far as they go: an
-	 * id it would read short ("GTM-Nqhqhzlr" reads as "GTM-N", a container
-	 * the client does not have, so the loader refuses the request the page
-	 * printed) is never asked for either. Since the id is read in upper case
-	 * (get_raw_gtm_container_id, 2.3.0) no id typed on the settings screen
-	 * can match it; it stays as the mirror of the loader's rule.
+	 * (decodeContainerId in the workers), which reads upper-case letters and
+	 * digits after "GTM-" as far as they go: an id it would read short
+	 * ("GTM-Nqhqhzlr" reads as "GTM-N", a container the client does not have,
+	 * so the loader refuses the request the page printed) is never asked for
+	 * either. Since the id is read in upper case (get_raw_gtm_container_id) no
+	 * id typed on the settings screen can match it; it stays as the mirror of
+	 * the loader's rule.
 	 */
 	const ID_RE		= '/^GTM-[A-Z0-9]{1,15}$/i';
 	const ID_CUT_RE = '/^GTM-[A-Z0-9]*[^A-Z0-9]/';
@@ -159,8 +157,8 @@ class GTM_Server_Side_Shield_Check {
 
 	/**
 	 * The markers around the body of each of the four piece methods in the
-	 * tracking-code file (pieces_hash() below; shield-build.mjs reads the
-	 * same markers).
+	 * tracking-code file (pieces_hash() below; the worker build reads the same
+	 * markers).
 	 */
 	const PIECE_BEGIN = '// ---- SHIELD PIECE BEGIN ----';
 	const PIECE_END = '// ---- SHIELD PIECE END ----';
@@ -188,9 +186,9 @@ class GTM_Server_Side_Shield_Check {
 	 *
 	 * One autoloaded option read, then the address this page would ask
 	 * (address(): the loader's random parts, each in an autoloaded option of
-	 * its own since B-01 of the fifth review, so no query; a transient is
-	 * read only where such an option holds nothing for the settings, once).
-	 * Anything but a live "yes" bound to the current address is no.
+	 * its own, so no query; a transient is read only where such an option holds
+	 * nothing for the settings, once). Anything but a live "yes" bound to the
+	 * current address is no.
 	 *
 	 * @return bool
 	 */
@@ -241,10 +239,10 @@ class GTM_Server_Side_Shield_Check {
 
 	/**
 	 * May pages printed for the loader sit in a page cache? Yes while the
-	 * record says "yes" (such pages are printed now) and after a "yes" was
-	 * dropped or gave way to a "no" without a purge since (the record keeps
-	 * that in 'y' until a purge clears it), so a purge is never lost on the
-	 * way from a "yes" to the "no", reset or deactivation that follows.
+	 * record says "yes" (such pages are printed now) and after a "yes" is
+	 * dropped or gives way to a "no" without a purge since (the record keeps
+	 * that in 'y' until a purge clears it), so a purge is never lost on the way
+	 * from a "yes" to the "no", reset or deactivation that follows.
 	 *
 	 * @param  mixed $record The option's value.
 	 * @return bool
@@ -256,7 +254,7 @@ class GTM_Server_Side_Shield_Check {
 	/**
 	 * The record as the database holds it now, not as this process cached it
 	 * when it started: the options cache is dropped first, so a record another
-	 * request wrote meanwhile (a settings save while an answer was on its way)
+	 * request wrote meanwhile (a settings save while an answer is on its way)
 	 * is seen. One query, in the hourly run only.
 	 *
 	 * @return mixed
@@ -473,17 +471,16 @@ class GTM_Server_Side_Shield_Check {
 		// Nor does a 5xx or a 429 (Cloudflare's Error 1027 of a spent daily
 		// allowance among them): the edge or a server in trouble, not a worker
 		// without the shield, and the loader fails for the visitor whatever the
-		// page printed. The record runs out on its own time, as with no answer
-		// (the owner's decision of 9 Nov 2026).
+		// page printed. The record runs out on its own time, as with no answer.
 		$status = (int) wp_remote_retrieve_response_code( $response );
 		if ( $status >= 500 || 429 === $status ) {
 			return;
 		}
 
-		// The address may have changed while the answer was on its way (a
-		// settings save, a reset): an answer for another address than the
-		// one a page would ask now is not stored; the run the reset
-		// scheduled asks the new one.
+		// The address may have changed while the answer is on its way (a
+		// settings save, a reset): an answer for another address than the one a
+		// page would ask now is not stored; the run the reset scheduled asks
+		// the new one.
 		if ( $address !== self::address() ) {
 			return;
 		}
@@ -524,11 +521,11 @@ class GTM_Server_Side_Shield_Check {
 	 * tracking-code file holds them: the body of each piece method, between
 	 * its SHIELD PIECE markers, in file order, md5 cut to 12 hex digits. The
 	 * worker composes its shield from a copy of exactly this code
-	 * (shield-build.mjs writes the same hash into it), so a worker built from
-	 * another version of the pieces says another hash and gets a "no": the
-	 * page prints inline and never relies on a shield that is not its own.
-	 * Read in the hourly run only, never on a page. '' when the file or its
-	 * four pairs of markers are not found.
+	 * (its build writes the same hash into it), so a worker built from another
+	 * version of the pieces says another hash and gets a "no": the page prints
+	 * inline and never relies on a shield that is not its own. Read in the
+	 * hourly run only, never on a page. '' when the file or its four pairs of
+	 * markers are not found.
 	 *
 	 * @return string
 	 */
@@ -563,8 +560,7 @@ class GTM_Server_Side_Shield_Check {
 	 * only where none of the four is found: a page cache this plugin does not
 	 * know by name may keep its pages there, but a flush drops every cached
 	 * object and transient of the site (and of its neighbours on a shared
-	 * store), so it is the last resort, never an extra (the owner's decision
-	 * of 9 Nov 2026).
+	 * store), so it is the last resort, never an extra.
 	 *
 	 * @return void
 	 */
@@ -590,20 +586,20 @@ class GTM_Server_Side_Shield_Check {
 			wp_cache_flush();
 		}
 		// A cache this plugin does not know (a host cache, Cloudflare APO, a
-		// Cache Rule) is the owner's: a small plugin of theirs can purge it here.
+		// Cache Rule) is the site's own: a small plugin can purge it here.
 		do_action( 'synapse_ct_purge_page_caches' );
 	}
 
 	/**
-	 * Record the answer with its expiry, a "yes" bound to the address it was
+	 * Record the answer with its expiry, a "yes" bound to the address it is
 	 * given for, under the generation the run asked under: a record dropped
-	 * while the answer was on its way (a reset, a version change, a
+	 * while the answer is on its way (a reset, a version change, a
 	 * deactivation; for this address or another) is read fresh from the
 	 * database and stands, and the run the reset scheduled asks again. A "no"
-	 * after pages were printed for the loader purges the page caches. A "yes"
-	 * after anything but a "yes" purges them too, once the record is written
-	 * (the owner's decision of 9 Nov 2026): the pages cached until then are
-	 * the long ones, and the ones rendered after the purge are short.
+	 * after pages printed for the loader purges the page caches. A "yes" after
+	 * anything but a "yes" purges them too, once the record is written: the
+	 * pages cached until then are the long ones, and the ones rendered after
+	 * the purge are short.
 	 *
 	 * @param  string $v	   'yes' or 'no'.
 	 * @param  string $address The address asked ('' for a "no" without one).
@@ -636,12 +632,12 @@ class GTM_Server_Side_Shield_Check {
 
 	/**
 	 * Purge the page caches when pages printed for the loader may sit in one
-	 * and the record no longer says "yes", and note the purge in the record.
-	 * The record is read again, so what is purged for is what the option
-	 * holds now. The purge takes its seconds; the note goes on the record the
-	 * purge was decided for, read fresh from the database afterwards: a
-	 * record written meanwhile (a settings save, a deactivation, a "yes" of a
-	 * run) is left as it is, with its own note of what it owes.
+	 * and the record does not say "yes", and note the purge in the record. The
+	 * record is read again, so what is purged for is what the option holds now.
+	 * The purge takes its seconds; the note goes on the record the purge is
+	 * decided for, read fresh from the database afterwards: a record written
+	 * meanwhile (a settings save, a deactivation, a "yes" of a run) is left as
+	 * it is, with its own note of what it owes.
 	 *
 	 * @return void
 	 */

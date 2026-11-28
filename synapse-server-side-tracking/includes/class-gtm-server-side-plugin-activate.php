@@ -4,7 +4,6 @@
  *
  * @package    GTM_Server_Side
  * @subpackage GTM_Server_Side/includes
- * @since      2.0.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -32,11 +31,11 @@ class GTM_Server_Side_Plugin_Activate {
 	 * "Disable" so nothing is injected into the site until it is configured
 	 * on purpose.
 	 *
-	 * The shield check of 2.3.0 starts from nothing: whatever record a
-	 * previous life of the plugin left (a deactivation drops it; a copy
-	 * replaced without one does not) is dropped, so the first pages print
-	 * inline and the hourly run asks again a minute after the first load. A
-	 * "yes" in that record is remembered for the purge that follows.
+	 * The shield check starts from nothing: whatever record a previous life of
+	 * the plugin left (a deactivation drops it; a copy replaced without one
+	 * does not) is dropped, so the first pages print inline and the hourly run
+	 * asks again a minute after the first load. A "yes" in that record is
+	 * remembered for the purge that follows.
 	 *
 	 * @return void
 	 */

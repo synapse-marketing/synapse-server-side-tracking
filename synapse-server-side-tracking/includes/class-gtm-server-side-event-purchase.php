@@ -4,7 +4,6 @@
  *
  * @package    GTM_Server_Side
  * @subpackage GTM_Server_Side/includes
- * @since      2.0.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -12,19 +11,18 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Data Layer Event: purchase.
  *
- * Since 2.2.0 an order is not "sent" because PHP printed the push. The push is
- * printed on the thank-you page with a durable event id, and the browser
- * confirms it back once Google Tag Manager has processed it (the push's
- * eventCallback sends a beacon to admin-ajax). Until that confirmation arrives
- * the push is printed again on the next views of the thank-you page, at most
- * MAX_PRINTS times, always with the same event id and transaction id, so
- * Google Analytics (transaction_id) and Meta (event_id) count the purchase
- * once. A blocked tag manager, a closed tab or a response cut mid-way no
- * longer leaves the order marked as delivered. States, in order meta:
- * prepared (the order exists), printed (the push went out at least once),
- * confirmed (the browser's tag manager processed it). Orders marked by a
- * version before 2.2.0 carry only the old "sent" stamp and are left as they
- * are.
+ * An order is not "sent" because PHP printed the push. The push is printed on
+ * the thank-you page with a durable event id, and the browser confirms it back
+ * once Google Tag Manager has processed it (the push's eventCallback sends a
+ * beacon to admin-ajax). Until that confirmation arrives the push is printed
+ * again on the next views of the thank-you page, at most MAX_PRINTS times,
+ * always with the same event id and transaction id, so Google Analytics
+ * (transaction_id) and Meta (event_id) count the purchase once. A blocked tag
+ * manager, a closed tab or a response cut mid-way never leaves the order marked
+ * as delivered. States, in order meta: prepared (the order exists), printed
+ * (the push went out at least once), confirmed (the browser's tag manager
+ * processed it). Orders that carry only the "sent" stamp of an earlier version
+ * are left as they are.
  */
 class GTM_Server_Side_Event_Purchase {
 	use GTM_Server_Side_Singleton;
@@ -37,8 +35,8 @@ class GTM_Server_Side_Event_Purchase {
 	const TRANSACTION_KEY = '_gtm_server_side_order_id';
 
 	/**
-	 * Order sent key. Since 2.2.0 written when the browser CONFIRMS the push,
-	 * not when PHP prints it; kept under its old name for anything that reads it.
+	 * Order sent key: written when the browser CONFIRMS the push, not when PHP
+	 * prints it. The name stays "sent" for anything that reads it.
 	 *
 	 * @var string
 	 */
@@ -59,7 +57,7 @@ class GTM_Server_Side_Event_Purchase {
 	const STATE_KEY = '_synapse_ct_purchase_state';
 
 	/**
-	 * Order meta: how many times the push was printed.
+	 * Order meta: how many times the push has been printed.
 	 *
 	 * @var string
 	 */
@@ -228,8 +226,8 @@ class GTM_Server_Side_Event_Purchase {
 	}
 
 	/**
-	 * The rule, on stored facts alone: confirmed = done; marked "sent" by a
-	 * version before 2.2.0 (no state at all) = done, that stamp meant printed and
+	 * The rule, on stored facts alone: confirmed = done; only the "sent" stamp of
+	 * an earlier version (no state at all) = done, that stamp means printed and
 	 * the order is weeks old by the time this runs; MAX_PRINTS prints without a
 	 * confirmation = give up (the state stays "printed", visible in the order
 	 * meta); anything else prints.
@@ -288,7 +286,7 @@ class GTM_Server_Side_Event_Purchase {
 
 	/**
 	 * The event id: keyed with the site's salt, 32 hex characters, the same for
-	 * the same order on the same site - durable even if the meta were lost.
+	 * the same order on the same site - durable even if the meta is lost.
 	 *
 	 * @param  int    $order_id  Order id.
 	 * @param  string $order_key Order key.
